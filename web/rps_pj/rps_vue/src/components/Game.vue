@@ -1,6 +1,12 @@
 <template>
   <div>
     <button type="submit" class="btn btn-success">ゲームスタート</button>
+    <p>Your Socket ID :</p> 
+    <p>{{ socket.id }}</p>
+    <button v-on:click="test">テスト送信</button>
+    <button v-on:click="joinroom1">ルーム1に入室</button>
+    <p>現在のルーム</p> 
+    <p>{{ message }}</p>
   </div>
 </template>
 
@@ -25,13 +31,28 @@ export default {
                 message: this.message
             });
             this.message = ''
+        },
+        test: function (e){
+            this.socket.emit('test', {
+                client_id : this.socket.id
+            });
+
+            e.preventDefault();
+
+        },
+        joinroom1: function () {
+            this.socket.emit('join_room1_ctos', {
+                client_id: this.socket.id
+            });
         }
+
     },
     mounted() {
-        this.socket.on('MESSAGE', (data) => {
-            this.messages = [...this.messages, data];
-            // you can also do this.messages.push(data)
+        this.socket.on('join_room1_stoc', (data) => {
+            console.log("room1 join");
+            this.message = data.room_id;
         });
+
     }
 }
 </script>

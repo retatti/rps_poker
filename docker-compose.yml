@@ -20,9 +20,9 @@ services:
             context: ./docker/node
         container_name: node_practice
         ports:
-            - "8100:8100"
             - "3000:3000"
         volumes:
             - ./node:/app/
+            - vue-cli-node-volume:/app/node_modules
         tty: true
         

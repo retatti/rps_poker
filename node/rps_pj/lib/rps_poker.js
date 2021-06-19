@@ -1,7 +1,7 @@
 const GameMaster = require('./gamemaster.js');
 
 // じゃんけんポーカー実行
-function main() {
+module.exports = function RPS_Poker() {
     const deck_num = 63;
     const player_num = 2;
     const game_master = new GameMaster(deck_num, player_num);
@@ -9,4 +9,4 @@ function main() {
 
 }
 
-main();
+
