@@ -1,6 +1,6 @@
 <template>
     <div>
-        ヘッダー
+        ヘッダーだよ
     </div>
 </template>
 

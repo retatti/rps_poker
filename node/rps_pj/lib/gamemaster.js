@@ -2,17 +2,19 @@ const Player = require('./player.js');
 const janken = require('./janken.js');
 
 module.exports = class GameMaster {
-    constructor(deck_num, player_num) {
-        this.deck_num = deck_num;
+    constructor(players_arr) {
+        this.deck_num = 63;
+        this.player_num = 2;
         this.deck = new Array();
         this.discard = new Array();
-        this.player_num = player_num;
-        this.players = new Array(this.player_num);
-        for (let i = 0; i < this.player_num; i++) {
-            this.players[i] = new Player(i);
-        }
+        this.players = players_arr;
         this.suit = ["Rock", "Paper", "Scissors"];
         this.hands_num = 5;
+        this.tips = 0;
+        this.ante_money = 10;
+        this.bet = 10;
+        this.raise = 10;
+        this.betting_flag = false;
     }
 
     // ゲームスタート
@@ -76,7 +78,7 @@ module.exports = class GameMaster {
     }   
 
     // 手札交換
-    hand_exchange() {
+    hand_exchange_org() {
         let discard_hands_num = 0;
         let deal_hands_num = 0;
         const change_cards = ["012", "24"];
@@ -112,6 +114,32 @@ module.exports = class GameMaster {
         }
     }
 
+    hand_exchange(player_idx, change_cards) {
+        let discard_hands_num = 0;
+        let deal_hands_num = 0;
+
+        // TODO:エラー処理の追加(change_cards)
+
+        // 手札破棄
+        for (let i = 0; i < change_cards.length; i++) {
+            discard_hands_num = Number(change_cards[i]);
+            this.discard.push(this.players[player_idx].hands[discard_hands_num]);
+            delete this.players[player_idx].hands[discard_hands_num];
+        }
+
+        // 手札補充
+        for (let i = 0; i < change_cards.length; i++) {
+            deal_hands_num = Number(change_cards[i]);
+            this.players[player_idx].hands[deal_hands_num] = this.deck[0];
+            this.deck.shift();
+        }
+
+        this.players[player_idx].exchanged = true;
+    }
+
+
+
+
     // 勝負カード決定
     suit_determine() {
         // 各プレイヤーに勝負カードを決定してもらう処理
@@ -121,17 +149,23 @@ module.exports = class GameMaster {
 
     }
 
+    fight_card_determine(player_idx, fight_card) {
+        let fight_card_idx = Number(fight_card);
+        this.players[player_idx].fight_card_idx = fight_card_idx;
+        this.players[player_idx].selected_fight_card = true;
+    }
+
     // 勝利判定
     judge() {
-        var draw_flag;
-        var winner_idx;
+        let draw_flag;
+        let winner_idx;
         const players_suit = new Array();
         // 各プレイヤーに勝負カードを決定してもらう処理
         for (let i = 0; i < this.player_num; i++) {
             players_suit.push(this.players[i].hands[this.players[i].get_fight_card_idx()]);
         }        
         
-        console.log(players_suit);
+
         // じゃんけんの勝利判定
 
         // あいこ
@@ -146,8 +180,6 @@ module.exports = class GameMaster {
         if (players_suit.every(v => v === players_suit[0])) {
             draw_flag = true;
         }
-        console.log("draw_flag");
-        console.log(draw_flag);
 
         if (draw_flag) {
             if (this.player_num != 2) {
@@ -173,6 +205,17 @@ module.exports = class GameMaster {
         }
         
         return winner_idx;
+    }
+
+
+
+    // アンティ回収
+    collect_anty() {
+        // 各プレイヤーに勝負カードを決定してもらう処理
+        for (let i = 0; i < this.player_num; i++) {
+            this.players[i].money -= this.ante_money;
+            this.tips += this.ante_money;
+        } 
     }
 
     // ゲーム終了処理
