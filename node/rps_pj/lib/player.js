@@ -8,6 +8,7 @@ module.exports = class Player{
         this.fight_card_idx = -1;
         this.exchanged = false;
         this.selected_fight_card = false;
+        this.fold_flag = false;
     }
 
     get_id() {

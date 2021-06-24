@@ -189,10 +189,8 @@ io.on('connection', function(socket) {
                     
 
                     // select bet
-                    while (!(game_master[room].betting_flag)) {
-                        io.to(players[room][i].get_id()).emit('player_select_bet_stoc');
+                    io.to(players[room][i].get_id()).emit('player_select_bet_stoc');
 
-                    }
 
 
                     // judge
@@ -213,6 +211,10 @@ io.on('connection', function(socket) {
 
 
     socket.on('betting_ctos', function(data){
+        game_master[room].fight_card_determine(player_idx, data.fight_card);
+
+
+
 
     }); 
 

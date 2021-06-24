@@ -155,6 +155,29 @@ module.exports = class GameMaster {
         this.players[player_idx].selected_fight_card = true;
     }
 
+
+    // ベッティング処理
+    betting(player_idx, bet_action) {
+        let result = -1; // 勝負: 0, p1 fold: 1, p2 fold: 2
+
+        if (bet_action === 'fold') {
+            // お金を出さない処理
+            result = 1;
+        }else if(bet_action === 'call'){
+            // お金を出す処理
+            result = 0;
+        }else if (bet_action === 'raise') {
+            // お金を出す処理
+        }else if (bet_action === 'check') {
+            // お金を出さない処理
+        }else if (bet_action === 'bet') {
+            // お金を出す処理
+        }
+
+        return result;
+    }
+
+
     // 勝利判定
     judge() {
         let draw_flag;

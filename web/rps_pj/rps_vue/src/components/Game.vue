@@ -34,10 +34,10 @@
         </div>
         <br>
         <div v-if="betshow">
-            <button type="submit" id="bet" class="btn btn-success" v-on:click="bet_action">ベット</button>
-            <button type="submit" id="raise" class="btn btn-success" v-on:click="bet_action">レイズ</button>
-            <button type="submit" id="call" class="btn btn-success" v-on:click="bet_action">コール</button>
-            <button type="submit" id="fold" class="btn btn-success" v-on:click="bet_action">フォールド</button><br>
+            <button type="submit" id="bet" class="btn btn-success" v-on:click="bet_action('bet')">ベット</button>
+            <button type="submit" id="raise" class="btn btn-success" v-on:click="bet_action('raise')">レイズ</button>
+            <button type="submit" id="call" class="btn btn-success" v-on:click="bet_action('call')">コール</button>
+            <button type="submit" id="fold" class="btn btn-success" v-on:click="bet_action('fold')">フォールド</button><br>
         </div>
         <br>
         <p v-if="resultshow">プレイヤー {{winner_name}} が勝ちました</p><br>
@@ -111,6 +111,16 @@ export default {
             });
 
             this.fightshow = false;
+        },
+        bet_action: function(act) {
+            console.log(act);
+            this.socket.emit('betting_ctos', {
+                client_id: this.socket.id, 
+                room: this.room,
+                action: act
+            });
+            this.betshow = false;
+
         }
 
     },
