@@ -9,6 +9,7 @@ module.exports = class Player{
         this.exchanged = false;
         this.selected_fight_card = false;
         this.fold_flag = false;
+        this.current_bet = 0;
     }
 
     get_id() {
@@ -59,6 +60,25 @@ module.exports = class Player{
             }
         }
         return cnt;
+    }
+
+    bet(bet) {
+        this.money -= bet;
+        this.current_bet += bet;
+    }
+
+    call(call) {
+        this.money -= call;
+        this.current_bet += call;
+    }
+
+    fold() {
+
+    }
+
+    raise(raise) {
+        this.money -= raise;
+        this.current_bet += raise;
     }
 
 }

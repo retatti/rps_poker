@@ -28,6 +28,7 @@ const io = require('socket.io')(server, {
 
 const GameMaster = require('./lib/gamemaster.js');
 const Player = require('./lib/player.js');
+const { reset } = require('nodemon');
 
 let players = {};
 let game_master = {};
@@ -190,17 +191,6 @@ io.on('connection', function(socket) {
 
                     // select bet
                     io.to(players[room][i].get_id()).emit('player_select_bet_stoc');
-
-
-
-                    // judge
-                    // console.log("勝敗を判定するよ");
-                    // winner_idx = game_master[room].judge();
-
-                    // emit result
-                    // io.to(room).emit('game_result_stoc', {
-                    //     player: players[room][winner_idx]
-                    // });
                     
                 }
             }
@@ -211,9 +201,81 @@ io.on('connection', function(socket) {
 
 
     socket.on('betting_ctos', function(data){
-        game_master[room].fight_card_determine(player_idx, data.fight_card);
+        let result = game_master[room].betting(player_idx, data.action);
+
+        // player select alert
+        for (let i = 0; i < 2; i++) {
+            io.to(players[room][i].get_id()).emit('player_select_alert_stoc', {
+                player_name: players[room][player_idx].name,
+                action: data.action,
+            });
+        }
+        
+        for (let i = 0; i < 2; i++) {
+            io.to(players[room][i].get_id()).emit('player_info_stoc', {
+                player_hands: players[room][i].get_hands(),
+                tips : game_master[room].tips,
+                player_money: players[room][i].get_money(),
+                opponent_money:players[room][get_oppnent_idx(i)].get_money()
+            });
+        }
+
+        if (result === 1) {
+    
+            // turn change
+            for (let i = 0; i < 2; i++) {
+                if (i === player_idx) {
+                    io.to(players[room][i].get_id()).emit('player_wait_stoc');
+                }else {
+                    io.to(players[room][i].get_id()).emit('player_select_bet_stoc');
+                }
+            }
+
+        }else if (result === 0) {
+            // judge
+            // judge
+            console.log("勝敗を判定するよ");
+            winner_idx = game_master[room].judge();
+
+            // emit result
+            io.to(room).emit('game_result_stoc', {
+                player: players[room][winner_idx]
+            });
+
+            // money transfer
+            game_master[room].money_transfer(winner_idx);
+
+            // reset
+            game_master[room].reset();
+
+            for (let i = 0; i < 2; i++) {
+                io.to(players[room][i].get_id()).emit('player_info_stoc', {
+                    player_hands: players[room][i].get_hands(),
+                    tips : game_master[room].tips,
+                    player_money: players[room][i].get_money(),
+                    opponent_money:players[room][get_oppnent_idx(i)].get_money()
+                });
+            }
+
+            
+    
+        }else if (result === 2) {
+            // player_idx lose
+
+            // money transfer
+
+            // reset
 
 
+        }
+
+
+
+        if (end_flag) {
+            console.log("Game Over");
+        }else {
+            // 再スタート
+        }
 
 
     }); 

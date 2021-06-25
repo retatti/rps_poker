@@ -13,13 +13,15 @@ module.exports = class GameMaster {
         this.tips = 0;
         this.ante_money = 10;
         this.bet = 10;
-        this.raise = 10;
+        this.raise = 20;
+        this.call = 10;
         this.betting_flag = false;
+        this.pre_action = null;
     }
 
     // ゲームスタート
     start_game() {
-        var winner_idx = -1;
+        let winner_idx = -1;
         // 山札作成
         this.create_deck();
 
@@ -158,20 +160,37 @@ module.exports = class GameMaster {
 
     // ベッティング処理
     betting(player_idx, bet_action) {
-        let result = -1; // 勝負: 0, p1 fold: 1, p2 fold: 2
+        let result = -1; // 勝負: 0, 継続:1, fold: 2 
 
         if (bet_action === 'fold') {
             // お金を出さない処理
-            result = 1;
+            result = 2;
         }else if(bet_action === 'call'){
             // お金を出す処理
+            this.players[player_idx].call(this.call);
+            this.tips += this.call;
+            this.pre_action = 'call';
             result = 0;
         }else if (bet_action === 'raise') {
             // お金を出す処理
+            this.players[player_idx].raise(this.raise);
+            this.tips += this.raise;
+            this.pre_action = 'raise';
+            result = 1;
         }else if (bet_action === 'check') {
             // お金を出さない処理
+            if (this.pre_action === 'check') {
+                result = 0;
+            }else {
+                result = 1;
+            }
+            this.pre_action = 'check';
         }else if (bet_action === 'bet') {
             // お金を出す処理
+            this.players[player_idx].bet(this.bet);
+            this.tips += this.bet;
+            this.pre_action = 'bet';
+            result = 1;
         }
 
         return result;
@@ -230,6 +249,17 @@ module.exports = class GameMaster {
         return winner_idx;
     }
 
+
+    // money transfer
+    money_transfer(winner_idx) {
+        this.players[winner_idx].money += this.tips;
+    }
+
+    reset() {
+        this.tips = 0;
+        this.betting_flag = false;
+        this.pre_action = null;
+    }
 
 
     // アンティ回収

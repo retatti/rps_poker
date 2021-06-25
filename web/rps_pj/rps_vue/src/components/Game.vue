@@ -190,6 +190,10 @@ export default {
             this.betshow = true;
         });     
 
+        // select bet action
+        this.socket.on('player_select_alert_stoc', (data) => {
+            alert("プレイヤー " + data.player_name + " が" + data.action + " をしました");
+        });    
 
     },
 
