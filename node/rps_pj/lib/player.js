@@ -81,4 +81,12 @@ module.exports = class Player{
         this.current_bet += raise;
     }
 
+    reset() {
+        this.fight_card_idx = -1;
+        this.exchanged = false;
+        this.selected_fight_card = false;
+        this.fold_flag = false;
+        this.current_bet = 0;
+    }
+
 }

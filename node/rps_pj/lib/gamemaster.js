@@ -3,7 +3,7 @@ const janken = require('./janken.js');
 
 module.exports = class GameMaster {
     constructor(players_arr) {
-        this.deck_num = 63;
+        this.deck_num = 999;
         this.player_num = 2;
         this.deck = new Array();
         this.discard = new Array();
@@ -17,6 +17,7 @@ module.exports = class GameMaster {
         this.call = 10;
         this.betting_flag = false;
         this.pre_action = null;
+        this.game_loser_idx;
     }
 
     // ゲームスタート
@@ -117,8 +118,8 @@ module.exports = class GameMaster {
     }
 
     hand_exchange(player_idx, change_cards) {
-        let discard_hands_num = 0;
-        let deal_hands_num = 0;
+        let discard_hands_num;
+        let deal_hands_num;
 
         // TODO:エラー処理の追加(change_cards)
 
@@ -165,18 +166,19 @@ module.exports = class GameMaster {
         if (bet_action === 'fold') {
             // お金を出さない処理
             result = 2;
+            this.pre_action = 'fold';
         }else if(bet_action === 'call'){
             // お金を出す処理
             this.players[player_idx].call(this.call);
             this.tips += this.call;
-            this.pre_action = 'call';
             result = 0;
+            this.pre_action = 'call';
         }else if (bet_action === 'raise') {
             // お金を出す処理
             this.players[player_idx].raise(this.raise);
             this.tips += this.raise;
-            this.pre_action = 'raise';
             result = 1;
+            this.pre_action = 'raise';
         }else if (bet_action === 'check') {
             // お金を出さない処理
             if (this.pre_action === 'check') {
@@ -189,8 +191,8 @@ module.exports = class GameMaster {
             // お金を出す処理
             this.players[player_idx].bet(this.bet);
             this.tips += this.bet;
-            this.pre_action = 'bet';
             result = 1;
+            this.pre_action = 'bet';
         }
 
         return result;
@@ -259,6 +261,9 @@ module.exports = class GameMaster {
         this.tips = 0;
         this.betting_flag = false;
         this.pre_action = null;
+        for (let i = 0; i < this.player_num; i++) {
+            this.players[i].reset();
+        }         
     }
 
 
@@ -269,6 +274,41 @@ module.exports = class GameMaster {
             this.players[i].money -= this.ante_money;
             this.tips += this.ante_money;
         } 
+    }
+
+    restart() {
+        // reset hands
+        let discard_hands_num;
+        let deal_hands_num;
+
+        // TODO:エラー処理の追加(change_cards)
+
+        // 手札破棄
+        for (let i = 0; i < this.player_num; i++) {
+            for (let j = 0; j < this.hands_num; j++) {
+                this.discard.push(this.players[i].hands[j]);
+                delete this.players[i].hands[j];
+            }
+    
+            // 手札補充
+            for (let j = 0; j < this.hands_num; j++) {
+                this.players[i].hands[j] = this.deck[0];
+                this.deck.shift();
+            }
+        }
+    }
+
+
+    end_judge() {
+        let end_flag = false;
+        for (let i = 0; i < this.player_num; i++) {
+            if(this.players[i].get_money()  <= 0) {
+                this.game_loser_idx = i;
+                end_flag = true;
+                break;
+            }
+        }
+        return end_flag;
     }
 
     // ゲーム終了処理
