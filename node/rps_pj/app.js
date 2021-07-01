@@ -5,11 +5,13 @@ const cors = require('cors');
 const port = 3000;
 
 app.use(cors());
+app.use('/img', express.static(__dirname + '/dist/img/'));
+app.use('/css', express.static(__dirname + '/dist/css/'));
+app.use('/js', express.static(__dirname + '/dist/js/'));
 
 app.get('/', (req, res) => {
-    res.send("hasuhasuhasuhasu");
+    res.sendFile(__dirname + '/dist/index.html');
 });
-
 
 const server = app.listen(port, function() {
     console.log('server running on port 3000');

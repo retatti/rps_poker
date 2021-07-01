@@ -1,0 +1,1 @@
+.custom-loader{-webkit-animation:loader 1s infinite;animation:loader 1s infinite;display:flex}@-webkit-keyframes loader{0%{transform:rotate(0)}to{transform:rotate(1turn)}}@keyframes loader{0%{transform:rotate(0)}to{transform:rotate(1turn)}}.v-progress-circular{margin:1rem}.clicked{background-color:#00f;opacity:.5;display:block}
